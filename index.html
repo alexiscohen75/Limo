@@ -478,7 +478,7 @@ R.sign=function(){
     '<textarea rows="3" data-bind="meta.mentionBail">'+esc(m.mentionBail)+'</textarea>'+
     '<div class="duo mt8"><label class="f" style="flex:1;margin:0"><span class="fl">Fait à</span><input type="text" data-bind="meta.lieu" value="'+esc(m.lieu)+'"></label>'+
     '<label class="f" style="flex:1;margin:0"><span class="fl">Le</span><input type="date" data-bind="meta.dateEdl" value="'+esc(m.dateEdl)+'"></label></div>'+
-    '<label class="f mt8"><span class="fl">Nombre d\u2019exemplaires <span class="en">· copies</span></span><input type="text" inputmode="numeric" data-bind="meta.exemplaires" value="'+esc(m.exemplaires)+'"></label></div>';
+    '</div>';
   h+='<div class="card"><h2>Bailleur</h2><p class="h-en">· landlord</p>'+
     '<label class="f"><span class="fl">Nom</span><input type="text" data-bind="meta.bailleurNom" value="'+esc(m.bailleurNom)+'" placeholder="Nom et prénom"></label>'+
     '<canvas class="sig" data-who="bailleur"></canvas><div class="sigtools"><button type="button" data-act="sigclear" data-who="bailleur">Effacer</button></div></div>';
@@ -700,7 +700,7 @@ function buildPrint(){
     h+='<p>Reportage '+lab+' : '+parts.join(' et ')+' ; ce reportage fait partie intégrante du présent état des lieux.</p>';
   }
   h+='<p class="p-small">À la sortie, seules les dégradations excédant l\u2019usage normal et la vétusté du logement peuvent être imputées au locataire (art. 3-2, loi du 6 juillet 1989).</p>';
-  h+='<p class="p-fait">Fait à '+esc(m.lieu)+', le '+fmtDate(m.dateEdl)+', en '+esc(m.exemplaires||'2')+' exemplaires, dont un remis à chaque partie. <span class="p-en">· Signed in '+esc(m.exemplaires||'2')+' counterparts, one for each party.</span></p></div>';
+  h+='<p class="p-fait">Établi sous forme électronique à '+esc(m.lieu)+', le '+fmtDate(m.dateEdl)+' ; un exemplaire est transmis le jour même à chaque partie sur support durable (article 1375, alinéa 4, du code civil). <span class="p-en">· Executed electronically; a copy is provided to each party on a durable medium.</span></p></div>';
 
   h+='<div class="p-signs">';
   h+='<div><div class="p-cap">Bailleur <span class="p-en">· landlord</span></div><div class="p-nom">'+esc(m.bailleurNom||'&nbsp;')+'</div><div class="p-sigbox">'+(state.signatures.bailleur.png?'<img src="'+state.signatures.bailleur.png+'" alt="">':'')+'</div></div>';
