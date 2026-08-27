@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f3d34">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="État des lieux">
+<meta name="format-detection" content="telephone=no">
+<title>État des lieux · Inventaire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivoire:#fbfaf7; --vert:#1f3d34; --or:#b09565; --encre:#1e1c19; --encre2:#2b2823;
+  --gris:#9a9082; --gris2:#5c564b; --jaune:#fbf1d4; --jaune-b:#cdab4e; --bronze:#8a7350;
+  --bord:#e7e0d2; --bord2:#cfc6b2; --creme:#f4efe4;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ivoire);color:var(--encre);font-family:'EB Garamond','Iowan Old Style',Georgia,serif;font-size:17px;line-height:1.4}
+#app{display:flex;flex-direction:column;min-height:100dvh}
+#topbar{position:sticky;top:0;z-index:20;background:var(--vert);color:var(--creme);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top))}
+#tbTitle{min-width:0}
+#tbTitle .t1{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:20px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tbTitle .t2{font-size:12.5px;color:#cdb891;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#btnMenu{flex:none;background:transparent;color:var(--creme);border:1px solid #4b6459;border-radius:9px;padding:8px 12px;font:inherit;font-size:15px}
+#view{flex:1;width:100%;max-width:720px;margin:0 auto;padding:16px 14px 130px}
+#bottom{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:10px;align-items:center;background:rgba(251,250,247,.96);backdrop-filter:blur(6px);border-top:1px solid var(--bord);padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
+#bottom button{min-height:52px;font-size:17px}
+#btnPrev,#btnNext{flex:1}
+#navPos{flex:none;min-width:56px;text-align:center;color:var(--gris2);font-size:15px;padding:8px 4px;border:none;background:none;font-family:inherit}
+button{font-family:inherit;color:var(--encre);background:#fff;border:1px solid var(--bord2);border-radius:10px;padding:10px 14px;font-size:16px;cursor:pointer}
+button:disabled{opacity:.35}
+.primary{background:var(--vert);color:var(--creme);border-color:var(--vert)}
+.big{min-height:56px;width:100%;font-size:18px}
+h1.screen{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;color:var(--vert);font-size:29px;margin:2px 0 0;line-height:1.1}
+.sub-en{color:var(--bronze);font-size:15px;margin:2px 0 0}
+.rule{height:2px;background:linear-gradient(90deg,var(--or),rgba(176,149,101,0));margin:10px 0 16px;border:none}
+.card{background:#fffdf8;border:1px solid var(--bord);border-radius:12px;padding:12px;margin:0 0 12px}
+.card h2{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;color:var(--vert);font-size:21px;margin:0 0 2px}
+.card .h-en{color:var(--bronze);font-size:14px;margin:0 0 8px}
+.line{padding:12px 0;border-bottom:1px solid #efe9db}
+.line:last-of-type{border-bottom:none}
+.lblrow{display:flex;align-items:baseline;gap:8px}
+.lbl{flex:1;font-size:18px;font-weight:500}
+.lbl input{font-weight:500}
+.del{flex:none;border:none;background:none;color:var(--gris);font-size:19px;line-height:1;padding:2px 6px}
+input[type=text],input[type=date],input[type=number]{width:100%;font:inherit;font-size:17px;color:var(--encre);background:#fff;border:1px solid var(--bord);border-radius:9px;padding:9px 10px}
+.natin{font-style:italic;color:var(--gris2);background:transparent !important;border:none !important;border-bottom:1px dashed var(--bord2) !important;border-radius:0 !important;padding:2px 0 3px !important;font-size:15.5px !important;margin-top:2px}
+textarea{width:100%;font:inherit;font-size:17px;color:var(--encre);background:#fff;border:1px solid var(--bord);border-radius:9px;padding:9px 10px;resize:none;min-height:40px;overflow:hidden}
+textarea.obs{margin-top:8px}
+label.f{display:block;margin:0 0 10px}
+label.f .fl{display:block;font-size:15px;color:var(--gris2);margin-bottom:4px}
+label.f .fl .en{color:var(--bronze)}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px}
+.seg button{min-height:52px;padding:5px 2px;line-height:1.05;border-radius:10px}
+.seg b{display:block;font-size:17px;font-weight:600}
+.seg span{display:block;font-size:11.5px;color:var(--gris2);margin-top:2px}
+.seg button.on{background:var(--vert);color:var(--creme);border-color:var(--vert)}
+.seg button.on span{color:#cdb891}
+.tog{display:grid;grid-template-columns:1fr 1fr;gap:7px;max-width:230px;margin-top:9px}
+.tog button{min-height:46px}
+.tog button.on{background:var(--vert);color:var(--creme);border-color:var(--vert)}
+.duo{display:flex;gap:8px;margin-top:8px}
+.duo input{flex:1}
+.add{width:100%;min-height:46px;border-style:dashed;background:transparent;color:var(--gris2);margin-top:10px}
+.stepper{display:inline-flex;align-items:center;gap:2px;vertical-align:middle}
+.stepper button{width:44px;height:44px;font-size:22px;line-height:1;padding:0}
+.stepper .num{min-width:44px;text-align:center;font-size:19px;font-weight:600}
+.steprow{display:flex;align-items:center;gap:12px;margin-top:8px;flex-wrap:wrap}
+.steprow .sl{font-size:15px;color:var(--gris2)}
+.photobtn{display:flex;align-items:center;justify-content:center;gap:8px}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.thumbs figure{margin:0;position:relative}
+.thumbs img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px;border:1px solid var(--bord);display:block}
+.thumbs figcaption{font-size:11px;color:var(--gris2);margin-top:2px}
+.thumbs .pdel{position:absolute;top:4px;right:4px;background:rgba(30,28,25,.65);color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:14px;line-height:1;padding:0}
+.hint{font-size:14px;color:var(--gris2);font-style:italic}
+.warn{background:var(--jaune);border:1px solid var(--jaune-b);border-radius:10px;padding:10px 12px;font-size:15px;margin:0 0 12px}
+.okbadge{display:inline-block;background:#eef3ef;border:1px solid #c9d6cd;color:var(--vert);border-radius:99px;padding:4px 12px;font-size:14px}
+.membadge{display:inline-block;background:var(--jaune);border:1px solid var(--jaune-b);border-radius:99px;padding:4px 12px;font-size:14px}
+canvas.sig{width:100%;height:170px;background:#fff;border:1px solid var(--bord2);border-radius:10px;touch-action:none;display:block}
+.sigtools{display:flex;justify-content:flex-end;margin-top:6px}
+.sigtools button{font-size:14px;padding:7px 12px}
+#overlay{position:fixed;inset:0;z-index:30;background:rgba(30,28,25,.55)}
+#overlay[hidden]{display:none}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--ivoire);border-radius:16px 16px 0 0;max-height:82dvh;overflow:auto;padding:16px 14px calc(16px + env(safe-area-inset-bottom))}
+.sheet h2{font-family:'Cormorant Garamond',Georgia,serif;color:var(--vert);font-weight:600;font-size:24px;margin:0 0 10px}
+.somm button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;margin-bottom:7px;min-height:50px}
+.somm .st{flex:none;font-size:14px;color:var(--gris2)}
+.somm .st.full{color:var(--vert);font-weight:600}
+.somm button.todo{background:var(--jaune);border-color:var(--jaune-b)}
+.kv{width:100%;border-collapse:collapse;font-size:16px}
+.kv td{padding:5px 8px 5px 0;vertical-align:top}
+.kv td:first-child{color:var(--gris2);white-space:nowrap}
+.centered{text-align:center}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+.smallbtn{font-size:14px;padding:8px 12px}
+noscript div{padding:20px;font-family:Georgia,serif}
+#print{display:none}
+@media print{
+  #app{display:none !important}
+  #overlay{display:none !important}
+  #print{display:block}
+  body{background:#fff}
+}
+</style>
+<style id="printcss">
+@page{size:A4;margin:13mm 12mm}
+.p-doc{font-family:'EB Garamond','Iowan Old Style',Georgia,serif;color:#1e1c19;font-size:10.5pt;line-height:1.38;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.p-doc h1{font-family:'Cormorant Garamond',Georgia,serif;color:#1f3d34;font-weight:600;font-size:21pt;margin:0;line-height:1.1}
+.p-doc .p-sub{color:#8a7350;font-size:11.5pt;margin:1pt 0 0}
+.p-rule{height:2.2pt;background:linear-gradient(90deg,#b09565,rgba(176,149,101,0));margin:6pt 0 10pt}
+.p-head{font-size:10.5pt;margin:0 0 2pt}
+.p-en{color:#8a7350}
+.p-nat{font-style:italic;color:#5c564b}
+.p-small{font-size:8.7pt;color:#5c564b}
+.p-note{font-style:italic;color:#5c564b;font-size:9.5pt}
+.p-legend{font-size:8.8pt;color:#5c564b;margin:4pt 0 8pt}
+.p-legend b{color:#1e1c19}
+.p-parties{width:100%;border-collapse:collapse;margin:2pt 0 4pt;font-size:10.5pt}
+.p-parties td{vertical-align:top;padding:2pt 10pt 2pt 0;width:50%}
+.p-parties .p-cap{font-size:8.6pt;letter-spacing:.05em;text-transform:uppercase;color:#5c564b}
+.p-roombar{background:#1f3d34;color:#f4efe4;font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:12.5pt;padding:4pt 8pt;margin:11pt 0 0;border-radius:2pt;break-after:avoid;page-break-after:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.p-roombar .p-en2{font-family:'EB Garamond',Georgia,serif;font-weight:400;font-size:9.5pt;color:#cdb891}
+.p-sec{font-family:'Cormorant Garamond',Georgia,serif;color:#1f3d34;font-weight:600;font-size:14pt;margin:13pt 0 1pt;break-after:avoid;page-break-after:avoid}
+.p-sec .p-en2{font-family:'EB Garamond',Georgia,serif;font-weight:400;font-size:10pt;color:#8a7350}
+.p-subsec{font-size:10pt;font-weight:600;color:#5c564b;margin:6pt 0 1pt;break-after:avoid;page-break-after:avoid}
+table.p-t{width:100%;border-collapse:collapse;font-size:9.6pt;margin-top:2pt}
+.p-t th{text-align:left;font-weight:600;color:#5c564b;font-size:8.6pt;letter-spacing:.03em;border-bottom:1pt solid #b09565;padding:2.5pt 5pt 2.5pt 0}
+.p-t td{border-bottom:.55pt solid #ddd5c3;padding:3pt 5pt 3pt 0;vertical-align:top}
+.p-t tr{break-inside:avoid;page-break-inside:avoid}
+.p-etat{font-weight:700}
+.p-kvt{border-collapse:collapse;font-size:10pt;margin-top:2pt}
+.p-kvt td{padding:2pt 12pt 2pt 0;vertical-align:top}
+.p-kvt td:first-child{color:#5c564b}
+.p-photos{display:grid;grid-template-columns:1fr 1fr;gap:7pt;margin-top:4pt}
+.p-photos figure{margin:0;break-inside:avoid;page-break-inside:avoid}
+.p-photos img{width:100%;border:.6pt solid #ddd5c3}
+.p-photos figcaption{font-size:8pt;color:#5c564b;margin-top:1pt}
+.p-mentions{margin-top:10pt;font-size:10pt}
+.p-signs{display:flex;gap:12pt;margin-top:10pt}
+.p-signs>div{flex:1;border-top:.9pt solid #b09565;padding-top:4pt}
+.p-signs .p-cap{font-size:8.6pt;letter-spacing:.05em;text-transform:uppercase;color:#5c564b}
+.p-signs .p-nom{font-size:11pt;margin:1pt 0 3pt}
+.p-sigbox{height:58pt;display:flex;align-items:flex-end}
+.p-sigbox img{height:54pt;max-width:100%}
+.p-fait{margin-top:8pt;font-size:10.5pt}
+</style>
+</head>
+<body>
+<noscript><div>Cette application nécessite JavaScript.</div></noscript>
+<div id="app">
+  <header id="topbar">
+    <div id="tbTitle"><div class="t1">État des lieux</div><div class="t2">·</div></div>
+    <button id="btnMenu" type="button">Sommaire</button>
+  </header>
+  <main id="view"></main>
+  <nav id="bottom">
+    <button id="btnPrev" type="button">← Précédent</button>
+    <button id="navPos" type="button">·</button>
+    <button id="btnNext" type="button">Suivant →</button>
+  </nav>
+  <div id="overlay" hidden><div class="sheet"><h2>Sommaire <span style="color:var(--bronze);font-size:15px;font-family:'EB Garamond',serif;font-weight:400">· contents</span></h2><div class="somm" id="sommList"></div></div></div>
+</div>
+<div id="print"></div>
+<script>
+'use strict';
+/* ================= Données de référence ================= */
+var ETATS=[{v:'TB',fr:'très bon',en:'like new'},{v:'B',fr:'bon',en:'good'},{v:'EU',fr:'usage',en:'normal wear'},{v:'M',fr:'mauvais',en:'poor'}];
+var ETATS_FRL={TB:'très bon état',B:'bon état',EU:'état d\u2019usage',M:'mauvais état'};
+var LBL_EN={'Sol':'floor','Murs':'walls','Plafond':'ceiling','Plinthes':'skirting boards','Porte et cadre':'door and frame','Fenêtre et cadre':'window and frame','Éclairage et interrupteurs':'lighting and switches','Prises électriques':'power outlets','Radiateur · climatisation':'heating, air conditioning','Sanitaires et robinetterie':'sanitary ware and taps','Faïence et joints':'wall tiles and seals','Ventilation':'ventilation','Plan de travail et façades':'worktop and unit fronts','Évier et robinetterie':'sink and taps','Arrivées et évacuations':'water inlets and drains','Garde-corps':'railing','Éclairage extérieur':'outdoor lighting','Kitchenette : plan de travail et façades':'kitchenette, worktop and fronts'};
+var APP_EN={'Lave-linge':'washing machine','Sèche-linge':'tumble dryer','Réfrigérateur':'refrigerator','Congélateur':'freezer','Four':'oven','Plaques de cuisson':'hob','Hotte':'extractor hood','Lave-vaisselle':'dishwasher','Micro-ondes':'microwave','Machine à café':'coffee machine','Télévision':'television'};
+var NAT_EN={'Moquette':'carpet','Carrelage':'tiles','Plâtre peint':'painted plaster','Bois peint':'painted wood','Métal':'metal'};
+var LINGE_SEED=[['Parures de lit','bed linen sets'],['Draps housses','fitted sheets'],['Housses de couette','duvet covers'],['Taies d\u2019oreiller','pillowcases'],['Serviettes de bain','bath towels'],['Tapis de bain','bath mats'],['Torchons','tea towels'],['Nappes et sets de table','tablecloths and placemats']];
+var CLES_SEED=[['Jeu de clés n°1','key set 1'],['Jeu de clés n°2','key set 2'],['Badge d\u2019ascenseur','elevator badge'],['Badge ou bip de parking','parking fob'],['Clé de boîte aux lettres','mailbox key']];
+
+function mk(label,nature){return {label:label,en:LBL_EN[label]||'',nature:nature||'',etat:null,obs:''};}
+function secheSet(o){o=o||{};return [mk('Sol',o.sol),mk('Murs','Plâtre peint'),mk('Plafond','Plâtre peint'),mk('Plinthes',o.plinthes||'Bois peint'),mk('Porte et cadre','Bois peint'),mk('Fenêtre et cadre',o.fenetre||'Bois peint'),mk('Éclairage et interrupteurs',''),mk('Prises électriques',''),mk('Radiateur · climatisation','')];}
+function eauSet(o){o=o||{};return secheSet({sol:o.sol||'Carrelage',plinthes:'Carrelage',fenetre:o.fenetre}).concat([mk('Sanitaires et robinetterie',''),mk('Faïence et joints',''),mk('Ventilation','')]);}
+function cuisineSet(o){return secheSet(o).concat([mk('Plan de travail et façades',''),mk('Évier et robinetterie','')]);}
+function buanderieSet(){return secheSet({sol:'Carrelage',plinthes:'Carrelage'}).concat([mk('Arrivées et évacuations','')]);}
+function kitchenetteSet(){return [mk('Sol',''),mk('Murs','Plâtre peint'),mk('Plan de travail et façades',''),mk('Évier et robinetterie',''),mk('Faïence et joints',''),mk('Éclairage et interrupteurs',''),mk('Prises électriques','')];}
+function extSet(o){o=o||{};return [mk('Sol',o.sol||'Carrelage'),mk('Garde-corps','Métal'),mk('Éclairage extérieur','')];}
+function appl(nom){return {nom:nom,en:APP_EN[nom]||'',marque:'',modele:'',fonctionne:null,etat:null,obs:''};}
+
+function freshSeed(){
+  var today=new Date();
+  var iso=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  return {
+    v:2,
+    meta:{type:'entree',adresse:'5 rue de la Chaise, 75007 Paris',etage:'3e étage',dateEdl:iso,lieu:'Paris',exemplaires:'2',
+      bailleurNom:'',bailleurQualite:'Bailleur',cursor:0,
+      mentionBail:'Le présent état des lieux est établi contradictoirement entre les parties et annexé au contrat de location. Le bail prend effet le 25 août 2026 ; les clés ont été remises le 26 août 2026.'},
+    locs:[{nom:'Matilda'}],
+    rooms:[
+      {nom:'Entrée · Dégagement',en:'Entrance hall',elements:secheSet({sol:'Moquette'}),appareils:[],mobilier:[],videos:0},
+      {nom:'WC de l\u2019entrée',en:'Entrance toilet',elements:eauSet(),appareils:[],mobilier:[],videos:0},
+      {nom:'Salon',en:'Living room',elements:secheSet({sol:'Moquette'}),appareils:[],mobilier:[],videos:0},
+      {nom:'Cuisine',en:'Kitchen',elements:cuisineSet({}),appareils:[appl('Réfrigérateur'),appl('Congélateur'),appl('Four'),appl('Plaques de cuisson'),appl('Hotte'),appl('Lave-vaisselle'),appl('Micro-ondes'),appl('Machine à café')],mobilier:[],videos:0},
+      {nom:'Coin TV',en:'TV area',elements:secheSet({sol:'Moquette'}),appareils:[appl('Télévision')],mobilier:[],videos:0},
+      {nom:'Salle de bains · WC (coin TV)',en:'Bathroom, toilet (TV area)',elements:eauSet(),appareils:[],mobilier:[],videos:0},
+      {nom:'Chambre n°1',en:'Bedroom 1',elements:secheSet({sol:'Moquette',fenetre:'Métal'}),appareils:[],mobilier:[],videos:0},
+      {nom:'Salle de bains (chambre 1)',en:'Bathroom (bedroom 1)',elements:eauSet(),appareils:[],mobilier:[],videos:0},
+      {nom:'Chambre n°2',en:'Bedroom 2',elements:secheSet({sol:'Moquette'}),appareils:[],mobilier:[],videos:0},
+      {nom:'Salle de bains (chambre 2)',en:'Bathroom (bedroom 2)',elements:eauSet(),appareils:[],mobilier:[],videos:0},
+      {nom:'Cuisine (chambre 2)',en:'Kitchenette (bedroom 2)',elements:kitchenetteSet(),appareils:[appl('Réfrigérateur'),appl('Plaques de cuisson'),appl('Micro-ondes')],mobilier:[],videos:0},
+      {nom:'Dégagement',en:'Hallway',elements:secheSet({sol:'Moquette'}),appareils:[],mobilier:[],videos:0},
+      {nom:'WC n°2',en:'Toilet 2',elements:eauSet(),appareils:[],mobilier:[],videos:0},
+      {nom:'Buanderie',en:'Laundry room',elements:buanderieSet(),appareils:[appl('Lave-linge'),appl('Sèche-linge')],mobilier:[],videos:0},
+      {nom:'Balcon',en:'Balcony',elements:extSet({sol:'Carrelage'}),appareils:[],mobilier:[],videos:0}
+    ],
+    linge:LINGE_SEED.map(function(x){return {label:x[0],en:x[1],qte:0,etat:null,obs:''};}),
+    cles:CLES_SEED.map(function(x){return {label:x[0],en:x[1],nombre:0,remis:null,obs:''};}),
+    compteurs:{elecNum:'',elecIndex:'',eauNum:'',eauIndex:'',note:'Chauffage et eau chaude sanitaire collectifs (CPCU), sans comptage individuel.'},
+    obsGen:'',
+    photos:[],
+    signatures:{bailleur:{png:null},loc1:{png:null},loc2:{png:null}}
+  };
+}
+
+/* ================= Stockage ================= */
+var Store={
+  mode:'memory',mem:{},
+  init:function(){
+    try{localStorage.setItem('__edl_t','1');localStorage.removeItem('__edl_t');this.mode='local';return;}catch(e){}
+    try{if(window.storage&&window.storage.get){this.mode='artifact';}}catch(e){}
+  },
+  get:async function(k){
+    try{
+      if(this.mode==='local'){var v=localStorage.getItem(k);return v==null?null:v;}
+      if(this.mode==='artifact'){var r=await window.storage.get(k);return r?r.value:null;}
+    }catch(e){return null;}
+    return this.mem[k]!=null?this.mem[k]:null;
+  },
+  set:async function(k,v){
+    try{
+      if(this.mode==='local'){localStorage.setItem(k,v);return true;}
+      if(this.mode==='artifact'){await window.storage.set(k,v);return true;}
+    }catch(e){this.mem[k]=v;return false;}
+    this.mem[k]=v;return true;
+  },
+  del:async function(k){
+    try{
+      if(this.mode==='local'){localStorage.removeItem(k);}
+      else if(this.mode==='artifact'){await window.storage.delete(k);}
+    }catch(e){}
+    delete this.mem[k];
+  }
+};
+
+/* IndexedDB pour les photos (mode local) */
+var idb=null,idbOK=false;
+function idbOpen(){return new Promise(function(res){try{
+  if(!window.indexedDB){res();return;}
+  var r=indexedDB.open('edl-db',1);
+  r.onupgradeneeded=function(e){e.target.result.createObjectStore('photos',{keyPath:'id'});};
+  r.onsuccess=function(e){idb=e.target.result;idbOK=true;res();};
+  r.onerror=function(){res();};
+  r.onblocked=function(){res();};
+}catch(e){res();}});}
+function idbPut(rec){return new Promise(function(res){if(!idbOK){res(false);return;}try{var tx=idb.transaction('photos','readwrite');tx.objectStore('photos').put(rec);tx.oncomplete=function(){res(true);};tx.onerror=function(){res(false);};}catch(e){res(false);}});}
+function idbDel(id){return new Promise(function(res){if(!idbOK){res();return;}try{var tx=idb.transaction('photos','readwrite');tx.objectStore('photos').delete(id);tx.oncomplete=function(){res();};tx.onerror=function(){res();};}catch(e){res();}});}
+function idbAll(){return new Promise(function(res){if(!idbOK){res([]);return;}try{var tx=idb.transaction('photos','readonly');var rq=tx.objectStore('photos').getAll();rq.onsuccess=function(){res(rq.result||[]);};rq.onerror=function(){res([]);};}catch(e){res([]);}});}
+function idbClear(){return new Promise(function(res){if(!idbOK){res();return;}try{var tx=idb.transaction('photos','readwrite');tx.objectStore('photos').clear();tx.oncomplete=function(){res();};tx.onerror=function(){res();};}catch(e){res();}});}
+
+/* ================= État global ================= */
+var state=null;
+var PHOTOS={}; /* id -> dataUrl */
+var cur=0;
+var saveT=null,photoT=null;
+
+function save(){clearTimeout(saveT);saveT=setTimeout(function(){Store.set('edl:state',JSON.stringify(state));},400);}
+function savePhotosArtifact(){clearTimeout(photoT);photoT=setTimeout(function(){Store.set('edl:photos',JSON.stringify(PHOTOS));},800);}
+async function persistPhoto(id){
+  if(Store.mode==='local'&&idbOK){await idbPut({id:id,dataUrl:PHOTOS[id]});}
+  else{savePhotosArtifact();}
+}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function getPath(p){return p.split('.').reduce(function(o,k){return o[k];},state);}
+function setPath(p,v){var a=p.split('.');var o=state;for(var i=0;i<a.length-1;i++){o=o[a[i]];}o[a[a.length-1]]=v;save();}
+function fmtDate(iso){try{var d=new Date(iso+'T12:00:00');return d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});}catch(e){return iso;}}
+function fmtTs(ts){try{var d=new Date(ts);return d.toLocaleDateString('fr-FR')+' '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}}
+
+/* ================= Écrans ================= */
+function screens(){
+  var arr=[{t:'home'},{t:'infos'}];
+  state.rooms.forEach(function(r,i){arr.push({t:'room',i:i});});
+  arr.push({t:'linge'},{t:'cles'},{t:'compteurs'},{t:'obs'},{t:'sign'},{t:'recap'});
+  return arr;
+}
+function screenTitle(s){
+  if(s.t==='home')return ['Accueil','home'];
+  if(s.t==='infos')return ['Informations','details'];
+  if(s.t==='room')return ['Pièce '+(s.i+1)+' · '+state.rooms[s.i].nom,state.rooms[s.i].en];
+  if(s.t==='linge')return ['Linge de maison','household linen'];
+  if(s.t==='cles')return ['Clés et accès','keys and access'];
+  if(s.t==='compteurs')return ['Relevés de compteurs','meter readings'];
+  if(s.t==='obs')return ['Observations générales','general remarks'];
+  if(s.t==='sign')return ['Signatures','signatures'];
+  return ['Document · PDF','export'];
+}
+function roomDone(r){
+  var d=0,t=r.elements.length+r.appareils.length;
+  r.elements.forEach(function(e){if(e.etat)d++;});
+  r.appareils.forEach(function(a){if(a.fonctionne||a.etat)d++;});
+  return [d,t];
+}
+
+/* ---- composants ---- */
+function segHtml(path,val){
+  var h='<div class="seg">';
+  ETATS.forEach(function(e){
+    h+='<button type="button" data-act="etat" data-path="'+path+'" data-val="'+e.v+'" class="'+(val===e.v?'on':'')+'"><b>'+e.v+'</b><span>'+e.fr+'</span></button>';
+  });
+  return h+'</div>';
+}
+function togHtml(path,val,oui,non){
+  return '<div class="tog">'+
+    '<button type="button" data-act="tog" data-path="'+path+'" data-val="O" class="'+(val==='O'?'on':'')+'">'+oui+'</button>'+
+    '<button type="button" data-act="tog" data-path="'+path+'" data-val="N" class="'+(val==='N'?'on':'')+'">'+non+'</button></div>';
+}
+function stepHtml(path,val,label){
+  return '<div class="steprow"><span class="sl">'+label+'</span><span class="stepper">'+
+    '<button type="button" data-act="step" data-path="'+path+'" data-d="-1">−</button>'+
+    '<span class="num">'+(val||0)+'</span>'+
+    '<button type="button" data-act="step" data-path="'+path+'" data-d="1">+</button></span></div>';
+}
+function obsHtml(path,val,ph){
+  return '<textarea class="obs" rows="1" data-bind="'+path+'" placeholder="'+(ph||'Observations : marques, taches, rayures, usure…')+'">'+esc(val)+'</textarea>';
+}
+function delBtn(arr,i){return '<button type="button" class="del" data-act="del" data-arr="'+arr+'" data-i="'+i+'" aria-label="Supprimer">✕</button>';}
+function header(t,en){return '<h1 class="screen">'+esc(t)+'</h1><p class="sub-en">· '+esc(en)+'</p><hr class="rule">';}
+
+/* ---- rendus ---- */
+var R={};
+R.home=function(){
+  var started=state.meta.cursor>0||state.rooms.some(function(r){return r.elements.some(function(e){return e.etat;});});
+  var badge=Store.mode==='memory'
+    ?'<span class="membadge">Sauvegarde indisponible ici : ne fermez pas la page, exportez le JSON à la fin</span>'
+    :'<span class="okbadge">Sauvegarde automatique active'+(Store.mode==='artifact'?' (compte Claude)':' (cet appareil)')+'</span>';
+  return header('État des lieux · Inventaire','check-in inspection and inventory')+
+  '<div class="card"><table class="kv">'+
+  '<tr><td>Logement</td><td>'+esc(state.meta.adresse)+'<br><span class="hint">'+esc(state.meta.etage)+'</span></td></tr>'+
+  '<tr><td>Type</td><td>'+(state.meta.type==='entree'?'État des lieux d\u2019entrée':'État des lieux de sortie')+'</td></tr>'+
+  '<tr><td>Date</td><td>'+fmtDate(state.meta.dateEdl)+'</td></tr>'+
+  '</table></div>'+
+  '<p class="centered mt8">'+badge+'</p>'+
+  '<button type="button" class="primary big mt12" data-act="go" data-i="'+(started&&state.meta.cursor>0?state.meta.cursor:1)+'">'+(started?'Reprendre':'Commencer')+'</button>'+
+  '<button type="button" class="big mt8" data-act="menu">Sommaire</button>'+
+  '<p class="hint centered mt16">Avancez écran par écran : informations, 13 pièces, linge, clés, compteurs, observations, signatures, puis le PDF.</p>';
+};
+R.infos=function(){
+  var m=state.meta;
+  var h=header('Informations','property and parties');
+  h+='<div class="card"><h2>Type d\u2019état des lieux</h2><p class="h-en">· inspection type</p><div class="tog" style="max-width:100%">'+
+    '<button type="button" data-act="type" data-val="entree" class="'+(m.type==='entree'?'on':'')+'">Entrée</button>'+
+    '<button type="button" data-act="type" data-val="sortie" class="'+(m.type==='sortie'?'on':'')+'">Sortie</button></div></div>';
+  h+='<div class="card"><h2>Logement</h2><p class="h-en">· dwelling</p>'+
+    '<label class="f"><span class="fl">Adresse <span class="en">· address</span></span><input type="text" data-bind="meta.adresse" value="'+esc(m.adresse)+'"></label>'+
+    '<label class="f"><span class="fl">Étage, précisions <span class="en">· floor</span></span><input type="text" data-bind="meta.etage" value="'+esc(m.etage)+'"></label>'+
+    '<label class="f"><span class="fl">Date de l\u2019état des lieux <span class="en">· date</span></span><input type="date" data-bind="meta.dateEdl" value="'+esc(m.dateEdl)+'"></label></div>';
+  h+='<div class="card"><h2>Bailleur</h2><p class="h-en">· landlord</p>'+
+    '<label class="f"><span class="fl">Nom</span><input type="text" data-bind="meta.bailleurNom" value="'+esc(m.bailleurNom)+'" placeholder="Nom et prénom"></label>'+
+    '<label class="f"><span class="fl">Qualité</span><input type="text" data-bind="meta.bailleurQualite" value="'+esc(m.bailleurQualite)+'" placeholder="Bailleur, ou mandataire du bailleur"></label></div>';
+  h+='<div class="card"><h2>Locataire'+(state.locs.length>1?'s':'')+'</h2><p class="h-en">· tenant'+(state.locs.length>1?'s':'')+'</p>';
+  state.locs.forEach(function(l,i){
+    h+='<div class="lblrow"><input type="text" style="flex:1" data-bind="locs.'+i+'.nom" value="'+esc(l.nom)+'" placeholder="Nom et prénom">'+(i>0?'<button type="button" class="del" data-act="delloc">✕</button>':'')+'</div><div class="mt8"></div>';
+  });
+  if(state.locs.length<2)h+='<button type="button" class="add" data-act="addloc">+ Ajouter un second locataire</button>';
+  h+='</div>';
+  h+='<div class="card"><h2>Mention relative au bail</h2><p class="h-en">· lease note</p><textarea rows="3" data-bind="meta.mentionBail">'+esc(m.mentionBail)+'</textarea><p class="hint mt8">Cette mention figure au-dessus des signatures : dates de prise d\u2019effet du bail et de remise des clés si elles diffèrent.</p></div>';
+  return h;
+};
+R.room=function(s){
+  var i=s.i,r=state.rooms[i];
+  var h=header('Pièce '+(i+1)+' · '+r.nom,r.en);
+  h+='<div class="card"><h2>Éléments</h2><p class="h-en">· elements</p>';
+  r.elements.forEach(function(el,j){
+    var base='rooms.'+i+'.elements.'+j;
+    h+='<div class="line"><div class="lblrow"><div class="lbl">'+
+      (el.free?'<input type="text" data-bind="'+base+'.label" value="'+esc(el.label)+'" placeholder="Élément">':esc(el.label))+
+      '</div>'+delBtn('rooms.'+i+'.elements',j)+'</div>'+
+      '<input type="text" class="natin" data-bind="'+base+'.nature" value="'+esc(el.nature)+'" placeholder="nature : moquette, carrelage, plâtre peint…">'+
+      segHtml(base+'.etat',el.etat)+obsHtml(base+'.obs',el.obs)+'</div>';
+  });
+  h+='<button type="button" class="add" data-act="addEl" data-room="'+i+'">+ Ajouter un élément</button></div>';
+
+  h+='<div class="card"><h2>Appareils</h2><p class="h-en">· appliances</p>';
+  if(!r.appareils.length)h+='<p class="hint">Aucun appareil dans cette pièce. Ajoutez-en si besoin.</p>';
+  r.appareils.forEach(function(a,j){
+    var base='rooms.'+i+'.appareils.'+j;
+    h+='<div class="line"><div class="lblrow"><div class="lbl">'+
+      (a.free?'<input type="text" data-bind="'+base+'.nom" value="'+esc(a.nom)+'" placeholder="Appareil">':esc(a.nom))+
+      '</div>'+delBtn('rooms.'+i+'.appareils',j)+'</div>'+
+      '<div class="duo"><input type="text" data-bind="'+base+'.marque" value="'+esc(a.marque)+'" placeholder="Marque"><input type="text" data-bind="'+base+'.modele" value="'+esc(a.modele)+'" placeholder="Modèle"></div>'+
+      '<div class="steprow"><span class="sl">Fonctionne</span></div>'+togHtml(base+'.fonctionne',a.fonctionne,'Oui','Non')+
+      segHtml(base+'.etat',a.etat)+obsHtml(base+'.obs',a.obs)+'</div>';
+  });
+  h+='<button type="button" class="add" data-act="addAp" data-room="'+i+'">+ Ajouter un appareil</button></div>';
+
+  h+='<div class="card"><h2>Mobilier et décoration</h2><p class="h-en">· furniture and decoration</p>';
+  if(!r.mobilier.length)h+='<p class="hint">Lignes libres : canapé, table, chaises, luminaires, rideaux, cadres…</p>';
+  r.mobilier.forEach(function(mb,j){
+    var base='rooms.'+i+'.mobilier.'+j;
+    h+='<div class="line"><div class="lblrow"><div class="lbl"><input type="text" data-bind="'+base+'.label" value="'+esc(mb.label)+'" placeholder="Meuble ou objet"></div>'+delBtn('rooms.'+i+'.mobilier',j)+'</div>'+
+      stepHtml(base+'.qte',mb.qte,'Quantité')+segHtml(base+'.etat',mb.etat)+obsHtml(base+'.obs',mb.obs)+'</div>';
+  });
+  h+='<button type="button" class="add" data-act="addMb" data-room="'+i+'">+ Ajouter une ligne</button></div>';
+
+  var ph=state.photos.filter(function(p){return p.room===i;});
+  h+='<div class="card"><h2>Photos et vidéos</h2><p class="h-en">· photos and videos</p>'+
+    '<label class="add photobtn" style="display:flex">Prendre ou ajouter des photos<input type="file" hidden multiple accept="image/*" data-room="'+i+'"></label>';
+  if(ph.length){
+    h+='<div class="thumbs">';
+    ph.forEach(function(p){
+      var u=PHOTOS[p.id];
+      h+='<figure>'+(u?'<img src="'+u+'" alt="">':'<div class="hint">photo absente</div>')+'<button type="button" class="pdel" data-act="delphoto" data-id="'+p.id+'">✕</button><figcaption>'+fmtTs(p.ts)+'</figcaption></figure>';
+    });
+    h+='</div>';
+  }
+  h+=stepHtml('rooms.'+i+'.videos',r.videos,'Vidéos filmées');
+  h+='<p class="hint mt8">Photos horodatées, jointes en annexe du PDF. Les vidéos se filment avec l\u2019appareil photo et se partagent par WhatsApp le jour même : comptez-les ici, elles seront mentionnées au document.</p></div>';
+  return h;
+};
+R.linge=function(){
+  var h=header('Linge de maison','household linen');
+  h+='<div class="card">';
+  state.linge.forEach(function(l,j){
+    var base='linge.'+j;
+    h+='<div class="line"><div class="lblrow"><div class="lbl">'+
+      (l.free?'<input type="text" data-bind="'+base+'.label" value="'+esc(l.label)+'" placeholder="Article">':esc(l.label))+
+      '</div>'+delBtn('linge',j)+'</div>'+
+      stepHtml(base+'.qte',l.qte,'Quantité')+segHtml(base+'.etat',l.etat)+obsHtml(base+'.obs',l.obs)+'</div>';
+  });
+  h+='<button type="button" class="add" data-act="addLg">+ Ajouter une ligne</button></div>';
+  return h;
+};
+R.cles=function(){
+  var h=header('Clés et accès','keys and access');
+  h+='<div class="card">';
+  state.cles.forEach(function(c,j){
+    var base='cles.'+j;
+    h+='<div class="line"><div class="lblrow"><div class="lbl">'+
+      (c.free?'<input type="text" data-bind="'+base+'.label" value="'+esc(c.label)+'" placeholder="Clé, badge…">':esc(c.label))+
+      '</div>'+delBtn('cles',j)+'</div>'+
+      stepHtml(base+'.nombre',c.nombre,'Nombre')+
+      '<div class="steprow"><span class="sl">Remis au locataire</span></div>'+togHtml(base+'.remis',c.remis,'Oui','Non')+
+      obsHtml(base+'.obs',c.obs)+'</div>';
+  });
+  h+='<button type="button" class="add" data-act="addCl">+ Ajouter une ligne</button></div>';
+  return h;
+};
+R.compteurs=function(){
+  var c=state.compteurs;
+  return header('Relevés de compteurs','meter readings')+
+  '<div class="card"><h2>Électricité</h2><p class="h-en">· electricity</p>'+
+  '<label class="f"><span class="fl">Numéro de compteur <span class="en">· meter number</span></span><input type="text" data-bind="compteurs.elecNum" value="'+esc(c.elecNum)+'"></label>'+
+  '<label class="f"><span class="fl">Index (kWh) <span class="en">· reading</span></span><input type="text" inputmode="numeric" data-bind="compteurs.elecIndex" value="'+esc(c.elecIndex)+'"></label></div>'+
+  '<div class="card"><h2>Eau froide</h2><p class="h-en">· cold water, if sub-meter</p>'+
+  '<label class="f"><span class="fl">Numéro de compteur</span><input type="text" data-bind="compteurs.eauNum" value="'+esc(c.eauNum)+'"></label>'+
+  '<label class="f"><span class="fl">Index (m³)</span><input type="text" inputmode="decimal" data-bind="compteurs.eauIndex" value="'+esc(c.eauIndex)+'"></label></div>'+
+  '<div class="card"><h2>Note</h2><p class="h-en">· note</p><textarea rows="2" data-bind="compteurs.note">'+esc(c.note)+'</textarea></div>';
+};
+R.obs=function(){
+  return header('Observations générales','general remarks')+
+  '<div class="card"><textarea rows="6" data-bind="obsGen" placeholder="Mentions, réserves, ajouts…">'+esc(state.obsGen)+'</textarea>'+
+  '<p class="hint mt8">Règle du document : tout ajout hors rubriques se fait ici ou en marge de la pièce concernée, paraphé par les parties.</p></div>';
+};
+R.sign=function(){
+  var m=state.meta;
+  var h=header('Signatures','signatures');
+  h+='<div class="card"><h2>Mentions</h2><p class="h-en">· statements</p>'+
+    '<textarea rows="3" data-bind="meta.mentionBail">'+esc(m.mentionBail)+'</textarea>'+
+    '<div class="duo mt8"><label class="f" style="flex:1;margin:0"><span class="fl">Fait à</span><input type="text" data-bind="meta.lieu" value="'+esc(m.lieu)+'"></label>'+
+    '<label class="f" style="flex:1;margin:0"><span class="fl">Le</span><input type="date" data-bind="meta.dateEdl" value="'+esc(m.dateEdl)+'"></label></div>'+
+    '</div>';
+  h+='<div class="card"><h2>Bailleur</h2><p class="h-en">· landlord</p>'+
+    '<label class="f"><span class="fl">Nom</span><input type="text" data-bind="meta.bailleurNom" value="'+esc(m.bailleurNom)+'" placeholder="Nom et prénom"></label>'+
+    '<canvas class="sig" data-who="bailleur"></canvas><div class="sigtools"><button type="button" data-act="sigclear" data-who="bailleur">Effacer</button></div></div>';
+  state.locs.forEach(function(l,i){
+    var who=i===0?'loc1':'loc2';
+    h+='<div class="card"><h2>Locataire '+(state.locs.length>1?(i+1):'')+'</h2><p class="h-en">· tenant</p>'+
+      '<div class="lblrow"><input type="text" style="flex:1" data-bind="locs.'+i+'.nom" value="'+esc(l.nom)+'" placeholder="Nom et prénom">'+(i>0?'<button type="button" class="del" data-act="delloc">✕</button>':'')+'</div>'+
+      '<div class="mt8"></div><canvas class="sig" data-who="'+who+'"></canvas><div class="sigtools"><button type="button" data-act="sigclear" data-who="'+who+'">Effacer</button></div></div>';
+  });
+  if(state.locs.length<2)h+='<button type="button" class="add" data-act="addloc">+ Ajouter un second locataire</button>';
+  h+='<p class="hint mt12">Signature au doigt, directement sur l\u2019écran. Un seul signataire côté locataires est possible si l\u2019autre est absent.</p>';
+  return h;
+};
+R.recap=function(){
+  var h=header('Document · PDF','review and export');
+  var totPh=state.photos.length;
+  var totV=0;state.rooms.forEach(function(r){totV+=(r.videos||0);});
+  var lignes='';
+  state.rooms.forEach(function(r,i){
+    var d=roomDone(r);
+    lignes+='<tr><td>Pièce '+(i+1)+' · '+esc(r.nom)+'</td><td style="text-align:right;'+(d[0]===d[1]?'color:var(--vert);font-weight:600':'')+'">'+d[0]+' / '+d[1]+'</td></tr>';
+  });
+  var lingeN=state.linge.filter(function(l){return (l.qte||0)>0;}).length;
+  var clesN=state.cles.filter(function(c){return c.remis==='O';}).length;
+  h+='<div class="card"><h2>Avancement</h2><p class="h-en">· progress</p><table class="kv">'+lignes+
+    '<tr><td>Linge</td><td style="text-align:right">'+lingeN+' article'+(lingeN>1?'s':'')+'</td></tr>'+
+    '<tr><td>Clés remises</td><td style="text-align:right">'+clesN+'</td></tr>'+
+    '<tr><td>Photos</td><td style="text-align:right">'+totPh+'</td></tr>'+
+    '<tr><td>Vidéos (WhatsApp)</td><td style="text-align:right">'+totV+'</td></tr></table></div>';
+  h+='<button type="button" class="primary big" data-act="print">Générer le PDF</button>'+
+    '<p class="hint mt8">Sur iPhone : la feuille d\u2019impression s\u2019ouvre, touchez l\u2019aperçu puis Partager pour l\u2019envoyer en PDF (WhatsApp, Mail). Désactivez les en-têtes et pieds de page du navigateur si l\u2019option existe.</p>'+
+    '<button type="button" class="big mt12" data-act="dldoc">Télécharger le document (HTML à imprimer)</button>'+
+    '<p class="hint mt8">Solution de repli si l\u2019impression directe est bloquée : ouvrez ce fichier dans un navigateur puis imprimez-le en PDF.</p>';
+  h+='<div class="card mt16"><h2>Données</h2><p class="h-en">· backup</p>'+
+    '<button type="button" class="smallbtn" data-act="export">Exporter la sauvegarde (JSON)</button> '+
+    '<button type="button" class="smallbtn" data-act="copyexp">Copier</button>'+
+    '<textarea id="expBox" rows="3" class="mt8" placeholder="La sauvegarde apparaît ici ; collez ici un JSON puis touchez Importer."></textarea>'+
+    '<div class="mt8"><button type="button" class="smallbtn" data-act="import">Importer</button> '+
+    '<button type="button" class="smallbtn" data-act="reset" style="color:#8a3b32;border-color:#d8c2be">Tout réinitialiser</button></div>'+
+    '<p class="hint mt8">Mode de sauvegarde : '+(Store.mode==='local'?'locale, sur cet appareil et ce navigateur.':Store.mode==='artifact'?'compte Claude, synchronisée entre vos appareils.':'aucune ; exportez le JSON avant de fermer.')+'</p></div>';
+  return h;
+};
+
+/* ================= Rendu et navigation ================= */
+function fitTa(t){t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px';}
+function render(){
+  var scr=screens();var s=scr[cur];
+  var tt=screenTitle(s);
+  document.querySelector('#tbTitle .t1').textContent=tt[0];
+  document.querySelector('#tbTitle .t2').textContent=state.meta.adresse.split(',')[0]+' · '+(cur+1)+'/'+scr.length;
+  document.getElementById('navPos').textContent=(cur+1)+' / '+scr.length;
+  document.getElementById('btnPrev').disabled=(cur===0);
+  document.getElementById('btnNext').disabled=(cur===scr.length-1);
+  var view=document.getElementById('view');
+  view.innerHTML=R[s.t](s);
+  view.querySelectorAll('textarea').forEach(fitTa);
+  if(s.t==='sign')initSigs();
+  try{window.scrollTo(0,0);}catch(e){}
+}
+function go(i){
+  var n=screens().length;
+  cur=Math.max(0,Math.min(n-1,i));
+  state.meta.cursor=cur;save();
+  render();
+  document.getElementById('overlay').hidden=true;
+}
+
+function openSomm(){
+  var scr=screens();var h='';
+  scr.forEach(function(s,i){
+    var tt=screenTitle(s);var st='';var todo=false;
+    if(s.t==='room'){var d=roomDone(state.rooms[s.i]);st='<span class="st'+(d[0]===d[1]?' full':'')+'">'+d[0]+'/'+d[1]+'</span>';todo=(i<state.meta.cursor&&d[0]===0);}
+    if(s.t==='sign'){var sg=state.signatures;var n=(sg.bailleur.png?1:0)+(sg.loc1.png?1:0)+(sg.loc2.png?1:0);st='<span class="st'+(n>=2?' full':'')+'">'+n+' sign.</span>';}
+    h+='<button type="button" data-act="go" data-i="'+i+'" class="'+(todo?'todo':'')+'"><span>'+esc(tt[0])+'</span>'+st+'</button>';
+  });
+  document.getElementById('sommList').innerHTML=h;
+  document.getElementById('overlay').hidden=false;
+}
+
+/* ================= Photos ================= */
+function addPhoto(roomIdx,file){
+  return new Promise(function(res){
+    var url=URL.createObjectURL(file);
+    var im=new Image();
+    im.onload=function(){
+      try{
+        var max=Store.mode==='artifact'?1024:1400;
+        var w=im.naturalWidth,hh=im.naturalHeight;
+        var k=Math.min(1,max/Math.max(w,hh));
+        var cw=Math.round(w*k),ch=Math.round(hh*k);
+        var cv=document.createElement('canvas');cv.width=cw;cv.height=ch;
+        var cx=cv.getContext('2d');
+        if(!cx){res();return;}
+        cx.drawImage(im,0,0,cw,ch);
+        var q=Store.mode==='artifact'?0.55:0.65;
+        var du=cv.toDataURL('image/jpeg',q);
+        var id='p'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
+        var ts=file.lastModified||Date.now();
+        PHOTOS[id]=du;
+        state.photos.push({id:id,room:roomIdx,ts:ts});
+        save();persistPhoto(id);
+      }catch(e){}
+      URL.revokeObjectURL(url);res();
+    };
+    im.onerror=function(){URL.revokeObjectURL(url);res();};
+    im.src=url;
+  });
+}
+
+/* ================= Signatures ================= */
+function initSigs(){
+  document.querySelectorAll('canvas.sig').forEach(function(cv){
+    var who=cv.dataset.who;
+    var dpr=Math.min(2,window.devicePixelRatio||1);
+    var w=cv.offsetWidth||300,h=cv.offsetHeight||170;
+    cv.width=w*dpr;cv.height=h*dpr;
+    var cx=cv.getContext('2d');
+    if(!cx)return;
+    cx.scale(dpr,dpr);
+    cx.lineWidth=2.2;cx.lineCap='round';cx.lineJoin='round';cx.strokeStyle='#1e1c19';
+    var png=state.signatures[who]&&state.signatures[who].png;
+    if(png){var im=new Image();im.onload=function(){cx.drawImage(im,0,0,w,h);};im.src=png;}
+    var dr=false;
+    function pt(e){var r=cv.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];}
+    cv.addEventListener('pointerdown',function(e){e.preventDefault();dr=true;try{cv.setPointerCapture(e.pointerId);}catch(x){}var p=pt(e);cx.beginPath();cx.moveTo(p[0],p[1]);cx.lineTo(p[0]+0.1,p[1]+0.1);cx.stroke();});
+    cv.addEventListener('pointermove',function(e){if(!dr)return;e.preventDefault();var p=pt(e);cx.lineTo(p[0],p[1]);cx.stroke();});
+    function end(e){if(!dr)return;dr=false;try{state.signatures[who].png=cv.toDataURL('image/png');}catch(x){}save();}
+    cv.addEventListener('pointerup',end);
+    cv.addEventListener('pointercancel',end);
+    cv.addEventListener('pointerleave',end);
+  });
+}
+
+/* ================= Document PDF ================= */
+function enSpan(en){return en?' <span class="p-en">· '+esc(en)+'</span>':'';}
+function natCell(n){if(!n)return '';var en=NAT_EN[n];return '<span class="p-nat">'+esc(n)+'</span>'+(en?' <span class="p-en">· '+esc(en)+'</span>':'');}
+function etatCell(v){return v?'<span class="p-etat">'+v+'</span>':'';}
+function ouiNon(v){return v==='O'?'Oui':v==='N'?'Non':'';}
+function buildPrint(){
+  var m=state.meta;
+  var titreFr=m.type==='entree'?'État des lieux d\u2019entrée et inventaire':'État des lieux de sortie et inventaire';
+  var titreEn=m.type==='entree'?'Check-in inspection and inventory':'Check-out inspection and inventory';
+  var h='<div class="p-doc">';
+  h+='<h1>'+titreFr+'</h1><p class="p-sub">· '+titreEn+'</p><div class="p-rule"></div>';
+  h+='<p class="p-head"><b>'+esc(m.adresse)+'</b>'+(m.etage?' · '+esc(m.etage):'')+'<br>Établi le '+fmtDate(m.dateEdl)+' <span class="p-en">· drawn up on site</span></p>';
+  h+='<table class="p-parties"><tr>'+
+    '<td><div class="p-cap">Bailleur <span class="p-en">· landlord</span></div>'+esc(m.bailleurNom||'')+(m.bailleurQualite&&m.bailleurQualite!=='Bailleur'?'<br><span class="p-note">'+esc(m.bailleurQualite)+'</span>':'')+'</td>'+
+    '<td><div class="p-cap">Locataire'+(state.locs.length>1?'s':'')+' <span class="p-en">· tenant'+(state.locs.length>1?'s':'')+'</span></div>'+state.locs.map(function(l){return esc(l.nom);}).join('<br>')+'</td>'+
+    '</tr></table>';
+  h+='<p class="p-legend">Échelle d\u2019état <span class="p-en">· condition scale</span> : <b>TB</b> très bon état <span class="p-en">· like new</span> &nbsp; <b>B</b> bon état <span class="p-en">· good</span> &nbsp; <b>EU</b> état d\u2019usage <span class="p-en">· normal wear</span> &nbsp; <b>M</b> mauvais état <span class="p-en">· poor</span></p>';
+
+  state.rooms.forEach(function(r,i){
+    h+='<div class="p-roombar">Pièce '+(i+1)+' · '+esc(r.nom)+' <span class="p-en2">· '+esc(r.en)+'</span></div>';
+    h+='<table class="p-t"><colgroup><col style="width:28%"><col style="width:20%"><col style="width:8%"><col></colgroup>'+
+      '<tr><th>Élément <span class="p-en">· element</span></th><th>Nature</th><th>État</th><th>Observations <span class="p-en">· remarks</span></th></tr>';
+    r.elements.forEach(function(el){
+      if(!el.label&&!el.etat&&!el.obs)return;
+      h+='<tr><td>'+esc(el.label)+enSpan(el.en)+'</td><td>'+natCell(el.nature)+'</td><td>'+etatCell(el.etat)+'</td><td>'+esc(el.obs)+'</td></tr>';
+    });
+    h+='</table>';
+    if(r.appareils.length){
+      h+='<div class="p-subsec">Appareils <span class="p-en">· appliances</span></div>';
+      h+='<table class="p-t"><colgroup><col style="width:24%"><col style="width:24%"><col style="width:12%"><col style="width:8%"><col></colgroup>'+
+        '<tr><th>Appareil</th><th>Marque · modèle</th><th>Fonctionne</th><th>État</th><th>Observations</th></tr>';
+      r.appareils.forEach(function(a){
+        if(!a.nom&&!a.etat&&!a.obs)return;
+        h+='<tr><td>'+esc(a.nom)+enSpan(a.en)+'</td><td>'+esc([a.marque,a.modele].filter(Boolean).join(' · '))+'</td><td>'+ouiNon(a.fonctionne)+'</td><td>'+etatCell(a.etat)+'</td><td>'+esc(a.obs)+'</td></tr>';
+      });
+      h+='</table>';
+    }
+    var mob=r.mobilier.filter(function(x){return x.label||x.etat||x.obs;});
+    if(mob.length){
+      h+='<div class="p-subsec">Mobilier et décoration <span class="p-en">· furniture and decoration</span></div>';
+      h+='<table class="p-t"><colgroup><col style="width:38%"><col style="width:8%"><col style="width:8%"><col></colgroup>'+
+        '<tr><th>Élément</th><th>Qté</th><th>État</th><th>Observations</th></tr>';
+      mob.forEach(function(x){h+='<tr><td>'+esc(x.label)+'</td><td>'+(x.qte||0)+'</td><td>'+etatCell(x.etat)+'</td><td>'+esc(x.obs)+'</td></tr>';});
+      h+='</table>';
+    }
+    var vid=r.videos||0;
+    if(vid)h+='<p class="p-small">Vidéos : '+vid+' séquence'+(vid>1?'s':'')+' horodatée'+(vid>1?'s':'')+', partagée'+(vid>1?'s':'')+' entre les parties par WhatsApp.</p>';
+  });
+
+  var lg=state.linge.filter(function(l){return (l.qte||0)>0||l.etat||(l.obs&&l.obs.trim());});
+  h+='<div class="p-sec">Linge de maison <span class="p-en2">· household linen</span></div>';
+  if(lg.length){
+    h+='<table class="p-t"><colgroup><col style="width:38%"><col style="width:8%"><col style="width:8%"><col></colgroup>'+
+      '<tr><th>Article <span class="p-en">· item</span></th><th>Qté</th><th>État</th><th>Observations</th></tr>';
+    lg.forEach(function(l){h+='<tr><td>'+esc(l.label)+enSpan(l.en)+'</td><td>'+(l.qte||0)+'</td><td>'+etatCell(l.etat)+'</td><td>'+esc(l.obs)+'</td></tr>';});
+    h+='</table>';
+  }else h+='<p class="p-note">Néant.</p>';
+
+  var cl=state.cles.filter(function(c){return (c.nombre||0)>0||c.remis||(c.obs&&c.obs.trim());});
+  h+='<div class="p-sec">Clés et accès <span class="p-en2">· keys and access</span></div>';
+  if(cl.length){
+    h+='<table class="p-t"><colgroup><col style="width:38%"><col style="width:10%"><col style="width:10%"><col></colgroup>'+
+      '<tr><th>Accès</th><th>Nombre</th><th>Remis</th><th>Observations</th></tr>';
+    cl.forEach(function(c){h+='<tr><td>'+esc(c.label)+enSpan(c.en)+'</td><td>'+(c.nombre||0)+'</td><td>'+ouiNon(c.remis)+'</td><td>'+esc(c.obs)+'</td></tr>';});
+    h+='</table>';
+  }else h+='<p class="p-note">Néant.</p>';
+
+  var co=state.compteurs;
+  h+='<div class="p-sec">Relevés de compteurs <span class="p-en2">· meter readings</span></div><table class="p-kvt">';
+  if(co.elecNum||co.elecIndex)h+='<tr><td>Électricité <span class="p-en">· electricity</span></td><td>'+(co.elecNum?'compteur n° '+esc(co.elecNum)+' · ':'')+(co.elecIndex?'index '+esc(co.elecIndex)+' kWh':'')+'</td></tr>';
+  if(co.eauNum||co.eauIndex)h+='<tr><td>Eau froide <span class="p-en">· cold water</span></td><td>'+(co.eauNum?'compteur n° '+esc(co.eauNum)+' · ':'')+(co.eauIndex?'index '+esc(co.eauIndex)+' m³':'')+'</td></tr>';
+  h+='</table>';
+  if(co.note&&co.note.trim())h+='<p class="p-note">'+esc(co.note)+'</p>';
+
+  h+='<div class="p-sec">Observations générales <span class="p-en2">· general remarks</span></div>';
+  h+=state.obsGen&&state.obsGen.trim()?'<p style="white-space:pre-wrap">'+esc(state.obsGen)+'</p>':'<p class="p-note">Néant.</p>';
+  h+='<p class="p-small">Tout ajout hors rubriques est porté aux observations générales ou en marge de la pièce concernée, paraphé par les parties.</p>';
+
+  var totV=0;state.rooms.forEach(function(r){totV+=(r.videos||0);});
+  h+='<div class="p-mentions"><p>'+esc(m.mentionBail)+'</p>';
+  if(state.photos.length||totV){
+    var np=state.photos.length,parts=[];
+    if(np)parts.push(np+' photo'+(np>1?'s':'')+' horodatée'+(np>1?'s':'')+' jointe'+(np>1?'s':'')+' en annexe');
+    if(totV)parts.push(totV+' vidéo'+(totV>1?'s':'')+' horodatée'+(totV>1?'s':'')+' partagée'+(totV>1?'s':'')+' entre les parties par WhatsApp');
+    var lab=(np&&totV)?'photographique et vidéo':(np?'photographique':'vidéo');
+    h+='<p>Reportage '+lab+' : '+parts.join(' et ')+' ; ce reportage fait partie intégrante du présent état des lieux.</p>';
+  }
+  h+='<p class="p-small">À la sortie, seules les dégradations excédant l\u2019usage normal et la vétusté du logement peuvent être imputées au locataire (art. 3-2, loi du 6 juillet 1989).</p>';
+  h+='<p class="p-fait">Établi sous forme électronique à '+esc(m.lieu)+', le '+fmtDate(m.dateEdl)+' ; un exemplaire est transmis le jour même à chaque partie sur support durable (article 1375, alinéa 4, du code civil). <span class="p-en">· Executed electronically; a copy is provided to each party on a durable medium.</span></p></div>';
+
+  h+='<div class="p-signs">';
+  h+='<div><div class="p-cap">Bailleur <span class="p-en">· landlord</span></div><div class="p-nom">'+esc(m.bailleurNom||'&nbsp;')+'</div><div class="p-sigbox">'+(state.signatures.bailleur.png?'<img src="'+state.signatures.bailleur.png+'" alt="">':'')+'</div></div>';
+  state.locs.forEach(function(l,i){
+    var who=i===0?'loc1':'loc2';
+    h+='<div><div class="p-cap">Locataire <span class="p-en">· tenant</span></div><div class="p-nom">'+esc(l.nom||'&nbsp;')+'</div><div class="p-sigbox">'+(state.signatures[who].png?'<img src="'+state.signatures[who].png+'" alt="">':'')+'</div></div>';
+  });
+  h+='</div>';
+
+  if(state.photos.length){
+    h+='<div class="p-sec" style="break-before:page;page-break-before:always">Annexe photographique <span class="p-en2">· photo annex</span></div><div class="p-photos">';
+    state.photos.forEach(function(p,idx){
+      var u=PHOTOS[p.id];if(!u)return;
+      var r=state.rooms[p.room];
+      h+='<figure><img src="'+u+'" alt=""><figcaption>Photo '+(idx+1)+' · Pièce '+(p.room+1)+', '+esc(r?r.nom:'')+' · '+fmtTs(p.ts)+'</figcaption></figure>';
+    });
+    h+='</div>';
+  }
+  h+='</div>';
+  document.getElementById('print').innerHTML=h;
+}
+
+function downloadDoc(){
+  buildPrint();
+  var css=document.getElementById('printcss').textContent;
+  var doc='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>État des lieux · '+esc(state.meta.adresse)+'</title>'+
+    '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">'+
+    '<style>body{margin:0;background:#fbfaf7}.p-wrap{max-width:206mm;margin:0 auto;padding:10mm 8mm}@media print{body{background:#fff}.p-wrap{padding:0;max-width:none}}'+css+'</style></head><body><div class="p-wrap">'+
+    document.getElementById('print').innerHTML+'</div></body></html>';
+  try{
+    var b=new Blob([doc],{type:'text/html'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(b);
+    a.download='Etat-des-lieux-'+state.meta.dateEdl+'.html';
+    document.body.appendChild(a);a.click();a.remove();
+  }catch(e){alert('Téléchargement bloqué ici. Utilisez l\u2019export JSON puis la version hébergée.');}
+}
+
+/* ================= Export, import, reset ================= */
+function exportJson(dl){
+  var json=JSON.stringify({v:1,state:state,photos:PHOTOS});
+  var box=document.getElementById('expBox');
+  if(box)box.value=json;
+  if(dl){
+    try{
+      var b=new Blob([json],{type:'application/json'});
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(b);
+      a.download='edl-sauvegarde-'+state.meta.dateEdl+'.json';
+      document.body.appendChild(a);a.click();a.remove();
+    }catch(e){}
+  }
+  return json;
+}
+async function importJson(txt){
+  try{
+    var o=JSON.parse(txt);
+    if(!o||!o.state)throw 0;
+    state=o.state;PHOTOS=o.photos||{};
+    await Store.set('edl:state',JSON.stringify(state));
+    if(Store.mode==='local'&&idbOK){await idbClear();for(var id in PHOTOS){await idbPut({id:id,dataUrl:PHOTOS[id]});}}
+    else{await Store.set('edl:photos',JSON.stringify(PHOTOS));}
+    go(0);
+    alert('Sauvegarde importée.');
+  }catch(e){alert('JSON invalide.');}
+}
+async function resetAll(){
+  if(!confirm('Tout effacer et repartir du modèle vierge de la rue de la Chaise ?'))return;
+  await Store.del('edl:state');await Store.del('edl:photos');
+  if(Store.mode==='local'&&idbOK)await idbClear();
+  state=freshSeed();PHOTOS={};
+  go(0);
+}
+
+/* ================= Événements ================= */
+function bind(){
+  var view=document.getElementById('view');
+  view.addEventListener('input',function(e){
+    var t=e.target;
+    if(t.tagName==='TEXTAREA')fitTa(t);
+    var p=t.dataset.bind;
+    if(p)setPath(p,t.value);
+  });
+  view.addEventListener('change',async function(e){
+    var t=e.target;
+    if(t.dataset.bind&&t.type!=='file'){setPath(t.dataset.bind,t.value);return;}
+    if(t.type==='file'&&t.dataset.room!=null){
+      var ri=parseInt(t.dataset.room,10);
+      var files=Array.prototype.slice.call(t.files||[]);
+      for(var k=0;k<files.length;k++){await addPhoto(ri,files[k]);}
+      t.value='';
+      render();
+    }
+  });
+  view.addEventListener('click',function(e){
+    var b=e.target.closest('[data-act]');
+    if(!b)return;
+    var act=b.dataset.act;
+    if(act==='etat'||act==='tog'){
+      var pth=b.dataset.path,val=b.dataset.val;
+      var nv=getPath(pth)===val?null:val;
+      setPath(pth,nv);
+      var box=b.parentElement;
+      box.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x.dataset.val===nv);});
+      return;
+    }
+    if(act==='step'){
+      var pth2=b.dataset.path,d=parseInt(b.dataset.d,10);
+      var v=Math.max(0,(parseInt(getPath(pth2),10)||0)+d);
+      setPath(pth2,v);
+      b.parentElement.querySelector('.num').textContent=v;
+      return;
+    }
+    if(act==='type'){state.meta.type=b.dataset.val;save();render();return;}
+    if(act==='go'){go(parseInt(b.dataset.i,10));return;}
+    if(act==='menu'){openSomm();return;}
+    if(act==='addEl'){state.rooms[b.dataset.room].elements.push({label:'',en:'',nature:'',etat:null,obs:'',free:true});save();render();return;}
+    if(act==='addAp'){state.rooms[b.dataset.room].appareils.push({nom:'',en:'',marque:'',modele:'',fonctionne:null,etat:null,obs:'',free:true});save();render();return;}
+    if(act==='addMb'){state.rooms[b.dataset.room].mobilier.push({label:'',qte:1,etat:null,obs:''});save();render();return;}
+    if(act==='addLg'){state.linge.push({label:'',en:'',qte:0,etat:null,obs:'',free:true});save();render();return;}
+    if(act==='addCl'){state.cles.push({label:'',en:'',nombre:0,remis:null,obs:'',free:true});save();render();return;}
+    if(act==='addloc'){if(state.locs.length<2){state.locs.push({nom:''});save();render();}return;}
+    if(act==='delloc'){if(state.locs.length>1){state.locs.pop();state.signatures.loc2.png=null;save();render();}return;}
+    if(act==='del'){
+      if(!confirm('Supprimer cette ligne ?'))return;
+      getPath(b.dataset.arr).splice(parseInt(b.dataset.i,10),1);
+      save();render();return;
+    }
+    if(act==='delphoto'){
+      if(!confirm('Supprimer cette photo ?'))return;
+      var id=b.dataset.id;
+      state.photos=state.photos.filter(function(p){return p.id!==id;});
+      delete PHOTOS[id];
+      save();
+      if(Store.mode==='local'&&idbOK)idbDel(id);else savePhotosArtifact();
+      render();return;
+    }
+    if(act==='sigclear'){
+      var who=b.dataset.who;
+      state.signatures[who].png=null;save();
+      var cv=view.querySelector('canvas.sig[data-who="'+who+'"]');
+      if(cv){var cx=cv.getContext('2d');if(cx)cx.clearRect(0,0,cv.width,cv.height);}
+      return;
+    }
+    if(act==='print'){buildPrint();setTimeout(function(){try{window.print();}catch(e){alert('Impression bloquée ici : utilisez le bouton de téléchargement du document.');}},80);return;}
+    if(act==='dldoc'){downloadDoc();return;}
+    if(act==='export'){exportJson(true);return;}
+    if(act==='copyexp'){
+      var json=exportJson(false);
+      var box=document.getElementById('expBox');
+      box.focus();box.select();
+      try{navigator.clipboard.writeText(json);}catch(e){try{document.execCommand('copy');}catch(x){}}
+      return;
+    }
+    if(act==='import'){importJson(document.getElementById('expBox').value);return;}
+    if(act==='reset'){resetAll();return;}
+  });
+  document.getElementById('btnPrev').addEventListener('click',function(){go(cur-1);});
+  document.getElementById('btnNext').addEventListener('click',function(){go(cur+1);});
+  document.getElementById('navPos').addEventListener('click',openSomm);
+  document.getElementById('btnMenu').addEventListener('click',openSomm);
+  document.getElementById('overlay').addEventListener('click',function(e){
+    var b=e.target.closest('[data-act="go"]');
+    if(b){go(parseInt(b.dataset.i,10));return;}
+    if(e.target.id==='overlay')e.target.hidden=true;
+  });
+  window.addEventListener('beforeprint',buildPrint);
+}
+
+/* ================= Initialisation ================= */
+async function init(){
+  Store.init();
+  if(Store.mode==='local')await idbOpen();
+  var raw=await Store.get('edl:state');
+  if(raw){try{state=JSON.parse(raw);}catch(e){state=null;}}
+  if(!state||state.v!==2)state=freshSeed();
+  if(Store.mode==='local'&&idbOK){
+    var recs=await idbAll();
+    recs.forEach(function(r){PHOTOS[r.id]=r.dataUrl;});
+  }else{
+    var pr=await Store.get('edl:photos');
+    if(pr){try{PHOTOS=JSON.parse(pr)||{};}catch(e){PHOTOS={};}}
+  }
+  state.photos=(state.photos||[]).filter(function(p){return PHOTOS[p.id];});
+  var keep={};state.photos.forEach(function(p){keep[p.id]=1;});
+  for(var pid in PHOTOS){if(!keep[pid])delete PHOTOS[pid];}
+  bind();
+  go(state.meta.cursor||0);
+}
+window.App={go:function(i){go(i);},count:function(){return screens().length;},buildPrint:buildPrint,mode:function(){return Store.mode;}};
+init();
+</script>
+</body>
+</html>
